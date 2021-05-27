@@ -8,66 +8,33 @@ video_capture = cv2.VideoCapture(0)
 background = None
 backgrounds = []
 t_start = time.time()
-fs = 0
+fs = 0 # frames
+
+labels = ["person","bicycle","car","motorcycle","airplane","bus","train","truck","boat","traffic light","fire hydrant","stop sign","parking meter","bench","bird","cat","dog","horse","sheep","cow","elephant","bear","zebra","giraffe","backpack","umbrella","handbag","tie","suitcase","frisbee","skis","snowboard","sports ball","kite","baseball bat","baseball glove","skateboard","surfboard","tennis racket","bottle","wine glass","cup","fork","knife","spoon","bowl","banana","apple","sandwich","orange","broccoli","carrot","hot dog","pizza","donut","cake","chair","couch","potted plant","bed","dining table","toilet","tv","laptop","mouse","remote","keyboard","cell phone","microwave","oven","toaster","sink","refrigerator","book","clock","vase","scissors","teddy bear","hair drier","toothbrush"]
+
 while True:
+
+	# read a frame
 	ret, frame = video_capture.read()
+	# do detection on that frame
 	results = model(frame)
+	all_results = results.xyxy[0].tolist()
+
+	# for every frame...
+	for x1,y1,x2,y2,conf,lab in all_results:
+		# get the class name
+		class_of_obj = labels[int(lab)]
+
+		if class_of_obj == "bird":
+			frame = cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (255,0,0), 3)
+			# @Kevin, do whatever stuff u want here, cropping can be done using x1,x2,y1,y2. For now I just have it display the image
 	fs += 1
-	print(fs / (time.time() - t_start))
-	# print(results)
-	# results.save("test")
-	# break
-	# results.save("results.png")
-	# results.save("results.png")
+	print("FPS:", fs / (time.time() - t_start))
 
-	# if len(backgrounds) < 5:
-	# 	backgrounds += [frame]
-	# 	print(len(backgrounds))
-	# elif len(backgrounds) == 5:
-	# 	background = backgrounds[0]
-	# 	background = cv2.addWeighted(background, 0.2**(1/8.0), backgrounds[1], 0.2**(1/8.0), 0)
-	# 	background = cv2.addWeighted(background, 0.2**(1/8.0), backgrounds[2], 0.2**(1/4.0), 0)
-	# 	background = cv2.addWeighted(background, 0.2**(1/4.0), backgrounds[3], 0.2**(1/2.0), 0)
-	# 	background = cv2.addWeighted(background, 0.2**(1/2.0), backgrounds[4], 0.2,          10)
-	# 	backgrounds = range(6)
-	# 	print("here")
-	# else:
-	# 	less_background = frame - background
-	# 	hsv = cv2.cvtColor(less_background, cv2.COLOR_BGR2HSV)
-	# 	h, s, v = cv2.split(hsv)
 
-	# 	v[v > 0] += 1
-	# 	v[v <= 0] = 0
-
-	# 	final_hsv = cv2.merge((h, s, v))
-
-	# 	less_background = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
-		
-	# 	# ret, thresh = cv2.threshold(less_background, 127, 255, 0)
-	# 	imgray = cv2.cvtColor(less_background,cv2.COLOR_BGR2GRAY)
-	# 	thresh, less_background = cv2.threshold(imgray, 100, 255, cv2.THRESH_BINARY)
-	# 	# kernel = np.ones((5,5),np.uint8)
-	# 	# dilation = cv2.dilate(less_background,kernel,iterations = 1)
-
-	# 	kernel = np.ones((10,10),np.uint8)
-	# 	dilation = cv2.erode(less_background, kernel, iterations=3)
-
-	# 	_, contours, _ = cv2.findContours(dilation, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-	# 	target_contours = [x for x in contours if cv2.contourArea(x) > 10000 and cv2.contourArea(x) < 500000]			
-	# 	cv2.drawContours(frame, target_contours, -1, (0,0,255), 6)
-
-	# 	convex_contours = [cv2.convexHull(x) for x in target_contours]
-	# 	cv2.drawContours(frame, convex_contours, -1, (0,255,0), 6)
-
-	# 	bounding_boxes = [cv2.boundingRect(x) for x in target_contours]
-	# 	for box in bounding_boxes:
-	# 		x,y,w,h = box
-	# 		cv2.rectangle(frame,(x,y),(x+w,y+h), (255,0,0), 6)
-	
-	# result = cv2.imread("test/image0.jpg")
-	# try:
-	# 	cv2.imshow("a", result)
-	# except Exception as e:
-	# 	print(e)
-	# if cv2.waitKey(1) & 0xFF == ord('q'):
-	# 	break
+	try:
+		cv2.imshow("a", frame)
+	except Exception as e:
+		print(e)
+	if cv2.waitKey(1) & 0xFF == ord('q'):
+		break
