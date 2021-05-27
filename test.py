@@ -1,16 +1,21 @@
 import cv2
 import numpy as np
 import torch
+import time
 model = torch.hub.load('ultralytics/yolov5', 'yolov5s')
 
 video_capture = cv2.VideoCapture(0)
 background = None
 backgrounds = []
+t_start = time.time()
+fs = 0
 while True:
 	ret, frame = video_capture.read()
-	results = model(frame[:, :, ::-1])
+	results = model(frame)
+	fs += 1
+	print(fs / (time.time() - t_start))
 	# print(results)
-	results.save("test")
+	# results.save("test")
 	# break
 	# results.save("results.png")
 	# results.save("results.png")
@@ -59,10 +64,10 @@ while True:
 	# 		x,y,w,h = box
 	# 		cv2.rectangle(frame,(x,y),(x+w,y+h), (255,0,0), 6)
 	
-	result = cv2.imread("test/image0.jpg")
-	try:
-		cv2.imshow("a", result)
-	except Exception as e:
-		print(e)
-	if cv2.waitKey(1) & 0xFF == ord('q'):
-		break
+	# result = cv2.imread("test/image0.jpg")
+	# try:
+	# 	cv2.imshow("a", result)
+	# except Exception as e:
+	# 	print(e)
+	# if cv2.waitKey(1) & 0xFF == ord('q'):
+	# 	break
